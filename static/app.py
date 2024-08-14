@@ -24,7 +24,9 @@ def getRUL():
     maxVoltageDischarge = request.json['maxVoltageDischarge']
     minVoltageDischarge = request.json['minVoltageDischarge']
     cycleIndex = request.json['cycleIndex']
-    outputMultiplier = request.json['outputMultiplier']
+    cycleIndexMultiplier = request.json['cycleIndexMultiplier'] #default value .5
+    outputMultiplier = request.json['outputMultiplier'] #default value 2
+    mileage = request.json['mileage']
 
     battery = pd.read_csv("Battery_RUL.csv")
     # Filter rows where Discharge Time <9000
@@ -37,7 +39,7 @@ def getRUL():
     scaler = StandardScaler()
     feature_std = scaler.fit_transform(feature)
     feature_std = pd.DataFrame(feature_std, columns=feature.columns)
-    X_train, X_test, y_train, y_test = train_test_split(feature_std, target, test_size=0.1, random_state=2404)
+    X_train, X_test, y_train, y_test = train_test_split(feature, target, test_size=0.1, random_state=2404)
 
     pipeline = Pipeline(steps=[('impute', SimpleImputer(strategy='mean'))])
 
@@ -55,7 +57,8 @@ def getRUL():
     else:
         rul = pred[0]*outputMultiplier
     output = {
-        "remainingBatteryLife": rul
+        "remainingBatteryLife": rul,
+        "mileage": mileage
     }
     return jsonify(output)
 
